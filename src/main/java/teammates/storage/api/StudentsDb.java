@@ -295,8 +295,8 @@ public final class StudentsDb extends EntitiesDb<CourseStudent, StudentAttribute
     public void deleteStudents(AttributesDeletionQuery query) {
         if (query.isCourseIdPresent()) {
             List<CourseStudent> studentsToDelete = getCourseStudentsForCourseQuery(query.getCourseId()).list();
-            getSearchManager().deleteDocuments(
-                    studentsToDelete.stream().map(CourseStudent::getUniqueId).collect(Collectors.toList()));
+            //getSearchManager().deleteDocuments(
+            //        studentsToDelete.stream().map(CourseStudent::getUniqueId).collect(Collectors.toList()));
 
             deleteEntity(studentsToDelete.stream()
                     .map(s -> Key.create(CourseStudent.class, s.getUniqueId()))

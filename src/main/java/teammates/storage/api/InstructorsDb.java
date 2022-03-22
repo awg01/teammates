@@ -301,10 +301,10 @@ public final class InstructorsDb extends EntitiesDb<Instructor, InstructorAttrib
 
         if (query.isCourseIdPresent()) {
             List<Instructor> instructorsToDelete = load().filter("courseId =", query.getCourseId()).list();
-            getSearchManager().deleteDocuments(
-                    instructorsToDelete.stream()
-                            .map(Instructor::getUniqueId)
-                            .collect(Collectors.toList()));
+            //getSearchManager().deleteDocuments(
+            //        instructorsToDelete.stream()
+            //                .map(Instructor::getUniqueId)
+            //                .collect(Collectors.toList()));
 
             deleteEntity(instructorsToDelete.stream()
                     .map(s -> Key.create(Instructor.class, s.getUniqueId()))
