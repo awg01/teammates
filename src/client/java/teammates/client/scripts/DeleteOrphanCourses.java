@@ -1,5 +1,8 @@
 package teammates.client.scripts;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.googlecode.objectify.cmd.Query;
 
 import teammates.logic.api.Logic;
@@ -10,6 +13,12 @@ import teammates.storage.entity.Instructor;
  * Deletes orphan courses, i.e. courses with no instructors in it.
  */
 public class DeleteOrphanCourses extends DataMigrationEntitiesBaseScript<Course> {
+
+    // As the number of orphan courses is small, we opt for the approach of hard-coding the names instead
+    private static final List<String> ORPHAN_COURSES = Arrays.asList(
+            // List to be added manually
+            ""
+    );
 
     private final Logic logic = Logic.inst();
 
@@ -27,13 +36,31 @@ public class DeleteOrphanCourses extends DataMigrationEntitiesBaseScript<Course>
         return true;
     }
 
+    private boolean isOrphanCourse(Course course) {
+        int allInstructorCount = ofy().load().type(Instructor.class)
+                .filter("courseId =", course.getUniqueId())
+                .count();
+        if (allInstructorCount == 0) {
+            return true;
+        }
+
+        int nullGoogleIdInstructorCount = ofy().load().type(Instructor.class)
+                .filter("courseId =", course.getUniqueId())
+                .filter("googleId =", null)
+                .count();
+        return allInstructorCount == nullGoogleIdInstructorCount;
+    }
+
     @Override
     protected boolean isMigrationNeeded(Course course) {
-        return ofy().load().type(Instructor.class)
-                .filter("courseId =", course.getUniqueId())
-                .keys()
-                .list()
-                .isEmpty();
+        if (ORPHAN_COURSES.contains(course.getUniqueId())) {
+            if (isPreview() && !isOrphanCourse(course)) {
+                System.out.println("WARNING: Not orphan course: " + course.getUniqueId());
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override
